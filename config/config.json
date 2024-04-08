@@ -1,0 +1,12 @@
+{
+    "wheel": {
+        "length_mm": 10,
+        "diameter_mm": 5
+    },
+    "keyboard": {
+        "pitch_mm": 1
+    },
+    "music": {
+        "sample_rate": 44100
+    }
+}
