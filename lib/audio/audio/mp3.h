@@ -1,5 +1,6 @@
-#include <filesystem>
+#pragma once
 
+#include <filesystem>
 #include <audio_base.h>
 
 struct __attribute__((packed)) MP3Header {
