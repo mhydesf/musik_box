@@ -83,13 +83,11 @@ private:
     void setAudioType(uint16_t numChannels) {
         switch (numChannels) {
         case (static_cast<uint16_t>(AudioType::MONO)):
-            m_AudioType = AudioType::MONO;
             m_LoadSample = [this](const size_t& i, const size_t& bps) {
                 return this->loadSample_MONO(i, bps);
             };
             break;
         case (static_cast<uint16_t>(AudioType::STEREO)):
-            m_AudioType = AudioType::STEREO;
             m_LoadSample = [this](const size_t& i, const size_t& bps) {
                 return this->loadSample_STEREO(i, bps);
             };
@@ -122,25 +120,21 @@ private:
     void setAudioFormat(uint16_t format) {
         switch(format) {
         case (static_cast<uint16_t>(AudioFormat::BIT_8)):
-            m_BitsPerSample = AudioFormat::BIT_8;
             m_GetSampleValue = [this](const char* buffer) {
                 return this->getSampleValue_8_bit(buffer);
             };
             break;
         case (static_cast<uint16_t>(AudioFormat::BIT_16)):
-            m_BitsPerSample = AudioFormat::BIT_16;
             m_GetSampleValue = [this](const char* buffer) {
                 return this->getSampleValue_16_bit(buffer);
             };
             break;
         case (static_cast<uint16_t>(AudioFormat::BIT_24)):
-            m_BitsPerSample = AudioFormat::BIT_24;
             m_GetSampleValue = [this](const char* buffer) {
                 return this->getSampleValue_24_bit(buffer);
             };
             break;
         case (static_cast<uint16_t>(AudioFormat::BIT_32)):
-            m_BitsPerSample = AudioFormat::BIT_32;
             m_GetSampleValue = [this](const char* buffer) {
                 return this->getSampleValue_32_bit(buffer);
             };
@@ -152,8 +146,6 @@ private:
 
 private:
     WAVHeader m_Header;
-    AudioFormat m_BitsPerSample;
-    AudioType m_AudioType;
 
     std::function<int32_t(const char*)> m_GetSampleValue;
     std::function<AudioSample(const size_t&, const size_t&)> m_LoadSample;
