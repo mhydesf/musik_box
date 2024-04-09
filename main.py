@@ -1,9 +1,15 @@
-from lib.audio.build.musik_box import simple_func, get_vec
+from lib.audio.build.musik_box import WAV
+import matplotlib.pyplot as plt
 
 
 def main():
-    print(simple_func(1, 2))
-    print(get_vec(), type(get_vec()))
+    wav = WAV("sample/sample_audio.wav")
+    data = wav.loadAudio()
+    left = [d.left for d in data]
+    right = [d.right for d in data]
+
+    plt.plot(left)
+    plt.show()
 
 
 if __name__ == "__main__":
