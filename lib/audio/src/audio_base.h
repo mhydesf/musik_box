@@ -5,6 +5,11 @@
 #include <fstream>
 #include <filesystem>
 
+enum class FileType {
+    WAV = 0,
+    MP3 = 1
+};
+
 enum class AudioType {
     MONO = 1,
     STEREO = 2

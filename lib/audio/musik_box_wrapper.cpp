@@ -2,6 +2,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl/filesystem.h>
 
+#include <audio_base.h>
 #include <wav.h>
 
 PYBIND11_MODULE(musik_box, m) {
