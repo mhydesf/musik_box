@@ -25,7 +25,6 @@ public:
     WAV(std::filesystem::path filepath) {
         loadFromFile(filepath);
         setAudioFormat(m_Header.bitsPerSample);
-        setAudioType(m_Header.numChannels);
     }
 
     ~WAV(){}
@@ -38,7 +37,18 @@ public:
         samples.reserve(numSamples);
 
         for (size_t i = 0; i < m_Header.dataSize; i += bytesPerSample * m_Header.numChannels) {
-            AudioSample sample = m_LoadSample(i, bytesPerSample);
+            AudioSample sample = {};
+            switch (m_Header.numChannels) {
+            case (static_cast<uint16_t>(AudioType::MONO)):
+                sample.left = sample.right = m_GetSampleValue(&m_AudioData[i]);
+                break;
+            case (static_cast<uint16_t>(AudioType::STEREO)):
+                sample.left = m_GetSampleValue(&m_AudioData[i]);
+                sample.right = m_GetSampleValue(&m_AudioData[i + bytesPerSample]);
+                break;
+            default:
+                throw std::runtime_error("Unsupported audio type");
+            }
             samples.push_back(sample);
         }
 
@@ -67,45 +77,15 @@ protected:
     }
 
 private:
-    AudioSample loadSample_MONO(const size_t& index, const size_t& bytesPerSample) const {
-        AudioSample sample = {};
-        sample.left = sample.right = m_GetSampleValue(&m_AudioData[index]);
-        return sample;
-    }
-    
-    AudioSample loadSample_STEREO(const size_t& index, const size_t& bytesPerSample) const {
-        AudioSample sample = {};
-        sample.left = m_GetSampleValue(&m_AudioData[index]);
-        sample.right = m_GetSampleValue(&m_AudioData[index + bytesPerSample]);
-        return sample;
-    }
-
-    void setAudioType(uint16_t numChannels) {
-        switch (numChannels) {
-        case (static_cast<uint16_t>(AudioType::MONO)):
-            m_LoadSample = [this](const size_t& i, const size_t& bps) {
-                return this->loadSample_MONO(i, bps);
-            };
-            break;
-        case (static_cast<uint16_t>(AudioType::STEREO)):
-            m_LoadSample = [this](const size_t& i, const size_t& bps) {
-                return this->loadSample_STEREO(i, bps);
-            };
-            break;
-        default:
-            throw std::runtime_error("Unsupported audio type");
-        }
-    }
-    
-    int32_t getSampleValue_8_bit(const char* buffer) const {
+    inline int32_t getSampleValue_8_bit(const char* buffer) const {
         return static_cast<int32_t>(*reinterpret_cast<const uint8_t*>(buffer)) - 128;
     }
     
-    int32_t getSampleValue_16_bit(const char* buffer) const {
+    inline int32_t getSampleValue_16_bit(const char* buffer) const {
         return static_cast<int32_t>(*reinterpret_cast<const int16_t*>(buffer));
     }
 
-    int32_t getSampleValue_24_bit(const char* buffer) const {
+    inline int32_t getSampleValue_24_bit(const char* buffer) const {
         int32_t value = (static_cast<int32_t>(buffer[2]) << 16) | 
                         (static_cast<int32_t>(buffer[1]) << 8) | 
                         (static_cast<int32_t>(buffer[0]));
@@ -113,7 +93,7 @@ private:
         return value;
     }
 
-    int32_t getSampleValue_32_bit(const char* buffer) const {
+    inline int32_t getSampleValue_32_bit(const char* buffer) const {
         return *reinterpret_cast<const int32_t*>(buffer);
     }
 
@@ -146,7 +126,5 @@ private:
 
 private:
     WAVHeader m_Header;
-
     std::function<int32_t(const char*)> m_GetSampleValue;
-    std::function<AudioSample(const size_t&, const size_t&)> m_LoadSample;
 };
