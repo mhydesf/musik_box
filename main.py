@@ -1,10 +1,14 @@
-from lib.audio.build.musik_box import WAV
+from lib.audio.musik_box import WAV
 import matplotlib.pyplot as plt
+
+import time
 
 
 def main():
     wav = WAV("sample/sample_audio.wav")
+    start = time.perf_counter()
     data = wav.loadAudio()
+    print(time.perf_counter() - start)
     left = [d.left for d in data]
     right = [d.right for d in data]
 
