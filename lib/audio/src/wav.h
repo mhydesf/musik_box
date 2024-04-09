@@ -44,6 +44,14 @@ public:
 
         return samples;
     }
+    
+    uint16_t getNumChannels() { return m_Header.numChannels; }
+
+    uint32_t getSampleRate() { return m_Header.sampleRate; }
+
+    uint32_t getByteRate() { return m_Header.byteRate; }
+
+    uint16_t getBitsPerSample() { return m_Header.bitsPerSample; }
 
 protected:
     void loadFromFile(std::filesystem::path filepath) override {
