@@ -1,7 +1,8 @@
-from lib.audio.musik_box import WAV
-import matplotlib.pyplot as plt
-
 import time
+import numpy as np
+import matplotlib.pyplot as plt
+from lib.audio.musik_box import WAV
+
 
 
 def main():
@@ -9,19 +10,27 @@ def main():
     start = time.perf_counter()
     data = wav.loadAudio()
     print(time.perf_counter() - start)
-    left = [d.left for d in data]
-    right = [d.right for d in data]
+    left = [d.left for d in data][:100001]
+    _ = [d.right for d in data]
 
-    _, axs = plt.subplots(2, 1, figsize=(10, 4))
+    fft_result = np.fft.fft(left)
+    fft_freq = np.fft.fftfreq(len(left), 1/wav.getSampleRate())
 
-    axs[0].plot(left)
-    axs[0].set_title('Left')
+    plt.figure(figsize=(12, 6))
 
-    axs[1].plot(right)
-    axs[1].set_title('Right')
+    plt.subplot(1, 2, 1)
+    plt.plot(left)
+    plt.title('Original Signal')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Amplitude')
 
-    axs[0].set_ylim(-15_000, 15_000)
-    axs[1].set_ylim(-15_000, 15_000)
+    plt.subplot(1, 2, 2)
+    plt.stem(fft_freq, np.abs(fft_result))
+    plt.title('FFT of the Signal')
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Magnitude')
+    plt.xlim(0, wav.getSampleRate() / 2)
+
     plt.tight_layout()
     plt.show()
 

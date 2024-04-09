@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ef842bbbb2c5a4c499abded15c115d3b33f67fd6e6aad2633d26ac52e98a620a"
+            "sha256": "aec888494889adbdac2a94a3f9c6d906a44bf22a6d86985d61d56a50113b370c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -275,9 +275,6 @@
             "markers": "python_version >= '3.9'",
             "version": "==3.8.4"
         },
-        "musik-box": {
-            "file": "lib"
-        },
         "numpy": {
             "hashes": [
                 "sha256:03a8c78d01d9781b28a6989f6fa1bb2c4f2d51201cf99d3dd875df6fbd96b23b",
@@ -317,6 +314,7 @@
                 "sha256:f870204a840a60da0b12273ef34f7051e98c3b5961b61b0c2c1be6dfd64fbcd3",
                 "sha256:ffa75af20b44f8dba823498024771d5ac50620e6915abac414251bd971b4529f"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==1.26.4"
         },

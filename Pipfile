@@ -8,6 +8,7 @@ pydantic = "*"
 pybind11 = "*"
 matplotlib = "*"
 pyqt5 = "*"
+numpy = "*"
 
 [dev-packages]
 
