@@ -9,6 +9,7 @@ def main():
     right = [d.right for d in data]
 
     plt.plot(left)
+    plt.ylim(-15_000, 15_000)
     plt.show()
 
 
