@@ -31,10 +31,6 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.', '--target', ext.name] + build_args, cwd=self.build_temp)
 
 
-with open("../requirements.txt") as f:
-    requirements = [l.strip() for l in f.readlines() if not l.startswith("#")]
-
-
 setup(
     name='musik-box',
     version='0.0.1',
@@ -45,5 +41,4 @@ setup(
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     packages=find_packages(),
-    install_requires=requirements,
 )
