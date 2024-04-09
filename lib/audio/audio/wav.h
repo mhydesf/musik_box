@@ -1,14 +1,9 @@
 #pragma once
 
-#include <vector>
-#include <fstream>
 #include <stdexcept>
-#include <filesystem>
-
 #include <audio_base.h>
 
 struct __attribute__((packed)) WAVHeader {
-public:
     uint32_t riff;
     uint32_t chunkSize;
     uint32_t format;
@@ -24,12 +19,12 @@ public:
     uint32_t dataSize;
 };
 
-class WAV {
+class WAV : public I_Audio {
 public:
     WAV(std::filesystem::path filepath) { loadFromFile(filepath); }
     ~WAV(){}
     
-    std::vector<AudioSample> loadAudio() const {
+    std::vector<AudioSample> loadAudio() const override {
         const size_t bytesPerSample = m_Header.bitsPerSample / 8;
         const size_t numSamples = m_Header.dataSize / (bytesPerSample * m_Header.numChannels);
 
@@ -55,8 +50,8 @@ public:
         return samples;
     }
 
-private:
-    void loadFromFile(std::filesystem::path filepath) {
+protected:
+    void loadFromFile(std::filesystem::path filepath) override {
         std::ifstream file(filepath, std::ios::binary);
         if (file.is_open()) {
             file.read((char*)&m_Header, sizeof(WAVHeader));
@@ -68,6 +63,7 @@ private:
         }
     }
 
+private:
     int32_t getSampleValue(const char* buffer, uint16_t bitsPerSample) const {
         switch (bitsPerSample) {
         case static_cast<uint16_t>(AudioFormat::BIT_8):
@@ -90,5 +86,4 @@ private:
 
 private:
     WAVHeader m_Header;
-    std::vector<char> m_AudioData;
 };
