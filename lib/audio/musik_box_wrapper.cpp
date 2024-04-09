@@ -9,6 +9,13 @@ PYBIND11_MODULE(musik_box, m) {
         .value("MONO", AudioType::MONO)
         .value("STEREO", AudioType::STEREO)
         .export_values();
+    
+    pybind11::enum_<AudioFormat>(m, "AudioFormat")
+        .value("BIT_8", AudioFormat::BIT_8)
+        .value("BIT_16", AudioFormat::BIT_16)
+        .value("BIT_24", AudioFormat::BIT_24)
+        .value("BIT_32", AudioFormat::BIT_32)
+        .export_values();
 
     pybind11::class_<AudioSample>(m, "AudioSample")
         .def(pybind11::init<int16_t, int16_t>())
@@ -30,7 +37,6 @@ PYBIND11_MODULE(musik_box, m) {
              uint16_t,
              uint32_t,
              uint16_t>())
-        .def("loadFromFile", &WAVHeader::loadFromFile)
         .def_readwrite("riff", &WAVHeader::riff)
         .def_readwrite("chunkSize", &WAVHeader::chunkSize)
         .def_readwrite("format", &WAVHeader::format)

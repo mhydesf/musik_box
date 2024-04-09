@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -23,70 +24,73 @@ public:
     uint16_t bitsPerSample;
     uint32_t data;
     uint32_t dataSize;
-
-    static const WAVHeader loadFromFile(std::filesystem::path filepath) {
-        WAVHeader header;
-        std::ifstream file(filepath, std::ios::binary);
-        if (file.is_open()) {
-            file.read((char*)&header, sizeof(WAVHeader));
-            file.close();
-        } else {
-            throw std::runtime_error("Could not open WAV file");
-        }
-        return header;
-    }
 };
 
 class WAV {
 public:
-    WAV(std::filesystem::path filepath)
-        : m_Filepath(filepath)
-        , m_Header(WAVHeader::loadFromFile(m_Filepath)){}
-
+    WAV(std::filesystem::path filepath) { loadFromFile(filepath); }
     ~WAV(){}
     
-    std::vector<AudioSample> loadAudio() {
+    std::vector<AudioSample> loadAudio() const {
+        const size_t bytesPerSample = m_Header.bitsPerSample / 8;
+        const size_t numSamples = m_Header.dataSize / (bytesPerSample * m_Header.numChannels);
+
         std::vector<AudioSample> samples;
-
-        std::ifstream file(m_Filepath, std::ios::binary);
-        if (!file.is_open()) {
-            throw std::runtime_error("Could not open WAV file to read audio data");
-        }
-
-        file.seekg(sizeof(WAVHeader) - 8, std::ios::beg);
-
-        uint16_t bytesPerSample = m_Header.bitsPerSample / 8;
-        uint32_t numSamples = m_Header.dataSize / (bytesPerSample * m_Header.numChannels);
-
         samples.reserve(numSamples);
-        std::vector<char> buffer(bytesPerSample * m_Header.numChannels);
 
-        for (uint32_t i = 0; i < numSamples; ++i) {
-            file.read(buffer.data(), buffer.size());
-
+        for (size_t i = 0; i < m_Header.dataSize; i += bytesPerSample * m_Header.numChannels) {
             AudioSample sample = {};
-
-            switch (AudioType(m_Header.numChannels)) {
-            case (AudioType::MONO):
-                sample.left = *reinterpret_cast<int16_t*>(buffer.data());
-                sample.right = sample.left;
+            switch (m_Header.numChannels) {
+            case static_cast<uint16_t>(AudioType::MONO):
+                sample.left = sample.right = getSampleValue(&m_AudioData[i], m_Header.bitsPerSample);
                 break;
-            case (AudioType::STEREO):
-                sample.left = *reinterpret_cast<int16_t*>(buffer.data());
-                sample.right = *reinterpret_cast<int16_t*>(buffer.data() + bytesPerSample);
+            case static_cast<uint16_t>(AudioType::STEREO):
+                sample.left = getSampleValue(&m_AudioData[i], m_Header.bitsPerSample);
+                sample.right = getSampleValue(&m_AudioData[i + bytesPerSample], m_Header.bitsPerSample);
                 break;
             default:
-                throw std::runtime_error("More than two channels not supported");
+                throw std::runtime_error("Unsupported number of channels");
             }
-
             samples.push_back(sample);
         }
 
-        file.close();
         return samples;
     }
 
 private:
-    std::filesystem::path m_Filepath;
+    void loadFromFile(std::filesystem::path filepath) {
+        std::ifstream file(filepath, std::ios::binary);
+        if (file.is_open()) {
+            file.read((char*)&m_Header, sizeof(WAVHeader));
+            m_AudioData.resize(m_Header.dataSize);
+            file.read(m_AudioData.data(), m_Header.dataSize);
+            file.close();
+        } else {
+            throw std::runtime_error("Could not open WAV file");
+        }
+    }
+
+    int32_t getSampleValue(const char* buffer, uint16_t bitsPerSample) const {
+        switch (bitsPerSample) {
+        case static_cast<uint16_t>(AudioFormat::BIT_8):
+            return static_cast<int32_t>(*reinterpret_cast<const uint8_t*>(buffer)) - 128;
+        case static_cast<uint16_t>(AudioFormat::BIT_16):
+            return static_cast<int32_t>(*reinterpret_cast<const int16_t*>(buffer));
+        case static_cast<uint16_t>(AudioFormat::BIT_24): {
+            int32_t value = (static_cast<int32_t>(buffer[2]) << 16) | 
+                            (static_cast<int32_t>(buffer[1]) << 8) | 
+                            (static_cast<int32_t>(buffer[0]));
+            if (value & 0x800000) value |= 0xFF000000;
+            return value;
+        }
+        case static_cast<uint16_t>(AudioFormat::BIT_32):
+            return *reinterpret_cast<const int32_t*>(buffer);
+        default:
+            throw std::runtime_error("Unsupported bits per sample");
+        }
+    }
+
+private:
     WAVHeader m_Header;
+    std::vector<char> m_AudioData;
 };
