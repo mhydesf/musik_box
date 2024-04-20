@@ -1,6 +1,7 @@
 import time
+import numpy as np
 import matplotlib.pyplot as plt
-from lib.audio.musik_box import WAV, AudioType
+from lib.musik_box.audio.musik_box import WAV, AudioType
 
 start1 = time.perf_counter()
 wav = WAV("sample/sample_audio.wav")
@@ -18,6 +19,11 @@ else:
 end3 = time.perf_counter()
 
 plt.plot(data)
+plt.show()
+
+fft = np.fft.fft(data, len(data))
+
+plt.plot(fft)
 plt.show()
 
 print(f"Mapping took {end1-start1} s")

@@ -3,7 +3,7 @@ project(musik_box)
 
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 execute_process(
-    COMMAND pipenv --venv
+    COMMAND printenv VIRTUAL_ENV
     OUTPUT_VARIABLE PIPENV_VENV_PATH
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
