@@ -41,22 +41,27 @@ public:
         std::vector<AudioSample> samples;
         samples.reserve(numSamples);
 
+        bool isStereo = false;
+        switch (m_Header.numChannels) {
+        case (static_cast<uint16_t>(AudioType::MONO)):
+            break;
+        case (static_cast<uint16_t>(AudioType::STEREO)):
+            isStereo = true;
+            break;
+        default:
+            throw std::runtime_error("Unsupported audio type");
+        }
+
         for (size_t i = 0; i < m_Header.dataSize; i += bytesPerSample * m_Header.numChannels) {
             AudioSample sample = {};
-            switch (m_Header.numChannels) {
-            case (static_cast<uint16_t>(AudioType::MONO)):
-                sample.left = sample.right = m_GetSampleValue(&m_AudioData[i]);
-                break;
-            case (static_cast<uint16_t>(AudioType::STEREO)):
-                sample.left = m_GetSampleValue(&m_AudioData[i]);
+            sample.left = m_GetSampleValue(&m_AudioData[i]);
+            if (isStereo) {
                 sample.right = m_GetSampleValue(&m_AudioData[i + bytesPerSample]);
-                break;
-            default:
-                throw std::runtime_error("Unsupported audio type");
+            } else {
+                sample.right = sample.left;
             }
             samples.push_back(sample);
         }
-
         return samples;
     }
     
