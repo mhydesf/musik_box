@@ -1,5 +1,10 @@
 #pragma once
 
+#include <cstring>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <stdexcept>
 #include <functional>
 #include <audio_base.h>
@@ -65,15 +70,27 @@ public:
 
 protected:
     void loadFromFile(std::filesystem::path filepath) override {
-        std::ifstream file(filepath, std::ios::binary);
-        if (file.is_open()) {
-            file.read((char*)&m_Header, sizeof(WAVHeader));
-            m_AudioData.resize(m_Header.dataSize);
-            file.read(m_AudioData.data(), m_Header.dataSize);
-            file.close();
-        } else {
-            throw std::runtime_error("Could not open WAV file");
+        int fd = open(filepath.c_str(), O_RDONLY);
+        if (fd == -1) {
+            throw std::runtime_error("Could not open wav file");
         }
+        struct stat sb;
+        if (fstat(fd, &sb) == -1) {
+            close(fd);
+            throw std::runtime_error("Could not get file size");
+        }
+        char* addr = static_cast<char*>(
+            mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0)
+        );
+        if (addr == MAP_FAILED) {
+            close(fd);
+            throw std::runtime_error("Memory mapping failed");
+        }
+        std::memcpy(&m_Header, addr, sizeof(WAVHeader));
+        m_AudioData = std::vector<char>(addr+sizeof(WAVHeader), addr + sb.st_size);
+        
+        munmap(addr, sb.st_size);
+        close(fd);
     }
 
 private:
