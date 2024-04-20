@@ -3,8 +3,8 @@
 #include <pybind11/complex.h>
 #include <pybind11/stl/filesystem.h>
 
-#include <audio_base.h>
-#include <wav.h>
+#include <audio/audio_base.h>
+#include <audio/wav.h>
 
 PYBIND11_MODULE(musik_box, m) {
     pybind11::enum_<AudioType>(m, "AudioType")
@@ -56,5 +56,7 @@ PYBIND11_MODULE(musik_box, m) {
     pybind11::class_<WAV>(m, "WAV")
         .def(pybind11::init<std::filesystem::path>())
         .def("loadAudio", &WAV::loadAudio)
-        .def("getSampleRate", &WAV::getSampleRate);
+        .def("getNumChannels", &WAV::getNumChannels)
+        .def("getSampleRate", &WAV::getSampleRate)
+        .def("convertStereoToMono", &WAV::convertStereoToMono);
 }

@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <stdexcept>
 #include <functional>
-#include <audio_base.h>
+#include <audio/audio_base.h>
 
 struct __attribute__((packed)) WAVHeader {
     uint32_t riff;
@@ -65,7 +65,7 @@ public:
         return samples;
     }
     
-    uint16_t getNumChannels() { return m_Header.numChannels; }
+    AudioType getNumChannels() { return static_cast<AudioType>(m_Header.numChannels); }
 
     uint32_t getSampleRate() { return m_Header.sampleRate; }
 

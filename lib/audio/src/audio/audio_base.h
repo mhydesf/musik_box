@@ -31,6 +31,19 @@ class I_Audio {
 public:
     virtual std::vector<AudioSample> loadAudio() const = 0;
 
+    std::vector<int16_t> convertStereoToMono(const std::vector<AudioSample>& audioData) {
+        std::vector<int16_t> output;
+        output.resize(audioData.size());
+
+        size_t i = 0;
+        for (const auto& sample : audioData) {
+            int16_t val = (sample.left + sample.right) / 2;
+            output[i] = val;
+            i++;
+        }
+        return output;
+    }
+
 protected:
     virtual void loadFromFile(std::filesystem::path filepath) = 0;
 

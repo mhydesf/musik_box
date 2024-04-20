@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <wav.h>
+#include <audio/wav.h>
 
 int main() {
     try {
