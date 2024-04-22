@@ -6,3 +6,4 @@ An application that generates replacable drums for a music box.
 ## Installation
 - fmt::fmt
 - gnuplot
+- [FFTW](https://www.fftw.org/download.html)
