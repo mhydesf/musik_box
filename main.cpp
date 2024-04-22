@@ -9,7 +9,6 @@ int main(int argc, const char** argv) {
     WAV wav2{path2};
     auto data1 = wav1.loadAudio();
     auto data2 = wav1.loadAudio();
-    bool stop;
 
     return 0;
 }
