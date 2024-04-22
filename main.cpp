@@ -1,7 +1,7 @@
-#include <cstdint>
 #include <filesystem>
 
 #include <wav.h>
+#include <fft.h>
 #include <gnu_plot.h>
 
 using namespace MusikBox;
@@ -12,9 +12,21 @@ int main(int argc, const char** argv) {
     auto data = wav.loadAudio();
 
     auto mono = Audio::I_Audio::convertStereoToMono_AVG(data);
+    auto fft = DSP::FFTManager();
 
-    Tools::Plotter<int16_t> plot;
-    plot.Plot1D(mono);
+    std::vector<double> mono_d;
+    mono_d.resize(mono.size());
+
+    for (size_t i = 0; i < mono.size(); i++) {
+        mono_d[i] = static_cast<double>(mono[i]);
+    }
+
+    std::vector<std::complex<double>> result = fft.computeFFT(mono_d);
+
+    volatile bool stop = true;
+
+    Tools::Plotter plot;
+    plot.Plot1D(result);
 
     return 0;
 }
