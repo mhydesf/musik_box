@@ -14,11 +14,13 @@ add_subdirectory(lib/)
 add_subdirectory(test/)
 
 add_executable(${PROJECT_NAME} main.cpp)
-include_directories(${Boost_INCLUDE_DIRS})
+
 include_directories(vendor/gnuplot-iostream)
+include_directories(${Boost_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     musik_box_lib
     fmt::fmt
+    fftw3
     ${Boost_LIBRARIES}
 )
