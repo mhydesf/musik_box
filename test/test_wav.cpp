@@ -1,11 +1,11 @@
 #include <iostream>
-#include <fstream>
-
 #include <wav.h>
+
+using namespace MusikBox;
 
 int main() {
     try {
-        WAV wav{"../../../../sample/sample_audio.wav"};
+        Audio::WAV wav{"../../../../sample/sample_audio.wav"};
         std::cout << "Successfully generated WAV obj" << std::endl;
     } catch (const std::runtime_error& e) {
         std::cerr << "Exception raised " << e.what() << std::endl;
@@ -16,7 +16,7 @@ int main() {
     }
     
     try {
-        WAV wav{"../../../sample/fake.wav"};
+        Audio::WAV wav{"../../../sample/fake.wav"};
         return -1;
     } catch (const std::runtime_error& e) {
         std::cerr << "Appropriate exception raised " << e.what() << std::endl;

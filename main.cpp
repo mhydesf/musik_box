@@ -4,20 +4,17 @@
 #include <wav.h>
 #include <gnu_plot.h>
 
+using namespace MusikBox;
+
 int main(int argc, const char** argv) {
-    auto path1 = "/home/mikhail-hyde/Documents/sources/musik_box/sample/sample_audio.wav";
-    auto path2 = "/home/mikhail-hyde/Documents/sources/musik_box/sample/M4_major.wav";
-    WAV wav1{path1};
-    WAV wav2{path2};
-    auto data1 = wav1.loadAudio();
-    auto data2 = wav2.loadAudio();
+    auto path = "/home/mikhail-hyde/Documents/sources/musik_box/sample/sample_audio.wav";
+    Audio::WAV wav{path};
+    auto data = wav.loadAudio();
 
-    auto mono1 = wav1.convertStereoToMono(data1);
-    auto mono2 = wav2.convertStereoToMono(data2);
+    auto mono = Audio::I_Audio::convertStereoToMono_AVG(data);
 
-    Plotter<int16_t> plot;
-
-    plot.Plot(mono1);
+    Tools::Plotter<int16_t> plot;
+    plot.Plot1D(mono);
 
     return 0;
 }

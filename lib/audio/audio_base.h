@@ -2,8 +2,9 @@
 
 #include <cstdint>
 #include <vector>
-#include <fstream>
 #include <filesystem>
+
+namespace MusikBox::Audio {
 
 enum class FileType {
     WAV = 0,
@@ -31,7 +32,7 @@ class I_Audio {
 public:
     virtual std::vector<AudioSample> loadAudio() const = 0;
 
-    std::vector<int16_t> convertStereoToMono(const std::vector<AudioSample>& audioData) {
+    static std::vector<int16_t> convertStereoToMono_AVG(const std::vector<AudioSample>& audioData) {
         std::vector<int16_t> output;
         output.resize(audioData.size());
 
@@ -50,3 +51,5 @@ protected:
 protected:
     std::vector<char> m_AudioData;
 };
+
+} // namespace MusikBox::Audio

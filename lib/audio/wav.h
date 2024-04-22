@@ -4,11 +4,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <thread>
+#include <fstream>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <stdexcept>
 #include <functional>
 #include <audio_base.h>
+
+namespace MusikBox::Audio {
 
 struct WAVHeader {
     char chunkID[4];
@@ -170,3 +173,5 @@ private:
     WAVHeader m_Header;
     std::function<int32_t(const char*)> m_GetSampleValue;
 };
+
+} // namespace MusikBox::Audio
