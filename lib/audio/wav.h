@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <stdexcept>
 #include <functional>
-#include <audio/audio_base.h>
+#include <audio_base.h>
 
 struct __attribute__((packed)) WAVHeader {
     uint32_t riff;

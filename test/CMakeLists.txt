@@ -1,3 +1,4 @@
+enable_testing()
 file(GLOB TEST_SOURCES "*.cpp")
 
 foreach(testSrc ${TEST_SOURCES})
