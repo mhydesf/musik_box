@@ -3,6 +3,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
+#include <thread>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <stdexcept>
@@ -38,21 +39,48 @@ public:
         const size_t bytesPerSample = m_Header.bitsPerSample / 8;
         const size_t numSamples = m_Header.dataSize / (bytesPerSample * m_Header.numChannels);
 
-        std::vector<AudioSample> samples;
-        samples.reserve(numSamples);
+        bool isStereo = (m_Header.numChannels == static_cast<uint16_t>(AudioType::STEREO));
 
-        bool isStereo = false;
-        switch (m_Header.numChannels) {
-        case (static_cast<uint16_t>(AudioType::MONO)):
-            break;
-        case (static_cast<uint16_t>(AudioType::STEREO)):
-            isStereo = true;
-            break;
-        default:
-            throw std::runtime_error("Unsupported audio type");
+        const int NUM_THREADS = std::thread::hardware_concurrency();
+        const int SUB_ARRAY_SIZE = numSamples / NUM_THREADS;
+
+        std::vector<std::thread> threads;
+        std::vector<std::vector<AudioSample>> results(NUM_THREADS);
+
+        for (int i = 0; i < NUM_THREADS; i++) {
+            int start = i * SUB_ARRAY_SIZE;
+            int end = (i + 1) * SUB_ARRAY_SIZE;
+            if (i == NUM_THREADS - 1) end = numSamples;
+
+            results[i].reserve(SUB_ARRAY_SIZE);
+            threads.emplace_back(&WAV::processSubArray,
+                                 this,
+                                 std::ref(results[i]),
+                                 bytesPerSample,
+                                 isStereo,
+                                 start * bytesPerSample * m_Header.numChannels,
+                                 end * bytesPerSample * m_Header.numChannels);
         }
 
-        for (size_t i = 0; i < m_Header.dataSize; i += bytesPerSample * m_Header.numChannels) {
+        for (auto& t : threads) {
+            t.join();
+        }
+
+        std::vector<AudioSample> samples;
+        samples.reserve(numSamples);
+        for (auto& res : results) {
+            samples.insert(samples.end(), res.begin(), res.end());
+        }
+
+        return samples;
+    }
+
+    void processSubArray(std::vector<AudioSample>& target,
+                         size_t bytesPerSample,
+                         bool isStereo,
+                         int start,
+                         int end) const {
+        for (size_t i = start; i < end; i += bytesPerSample * m_Header.numChannels) {
             AudioSample sample = {};
             sample.left = m_GetSampleValue(&m_AudioData[i]);
             if (isStereo) {
@@ -60,11 +88,10 @@ public:
             } else {
                 sample.right = sample.left;
             }
-            samples.push_back(sample);
+            target.push_back(sample);
         }
-        return samples;
     }
-    
+
     AudioType getNumChannels() { return static_cast<AudioType>(m_Header.numChannels); }
 
     uint32_t getSampleRate() { return m_Header.sampleRate; }

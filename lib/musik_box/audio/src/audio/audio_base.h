@@ -22,7 +22,7 @@ enum class AudioFormat {
     BIT_32 = 32
 };
 
-struct __attribute__((packed)) AudioSample {
+struct AudioSample {
     int16_t left;
     int16_t right;
 };

@@ -1,8 +1,10 @@
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/complex.h>
 #include <pybind11/stl/filesystem.h>
 
+#include <cstdint>
 #include <audio/audio_base.h>
 #include <audio/wav.h>
 
@@ -23,7 +25,7 @@ PYBIND11_MODULE(musik_box, m) {
         .def(pybind11::init<int16_t, int16_t>())
         .def_readwrite("left", &AudioSample::left)
         .def_readwrite("right", &AudioSample::right);
-    
+
     pybind11::class_<WAVHeader>(m, "WAVHeader")
         .def(pybind11::init<
              uint32_t,
@@ -55,6 +57,7 @@ PYBIND11_MODULE(musik_box, m) {
 
     pybind11::class_<WAV>(m, "WAV")
         .def(pybind11::init<std::filesystem::path>())
+        // TODO: make pybind11 understand std::vector<AudioSample>
         .def("loadAudio", &WAV::loadAudio)
         .def("getNumChannels", &WAV::getNumChannels)
         .def("getSampleRate", &WAV::getSampleRate)
