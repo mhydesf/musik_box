@@ -1,5 +1,6 @@
 #include <wav.h>
 #include <filesystem>
+#include <matplotlibcpp.h>
 
 int main(int argc, const char** argv) {
     auto path1 = "/home/mikhail-hyde/Documents/sources/musik_box/sample/sample_audio.wav";
