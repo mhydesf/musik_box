@@ -10,20 +10,20 @@
 #include <functional>
 #include <audio_base.h>
 
-struct __attribute__((packed)) WAVHeader {
-    uint32_t riff;
+struct WAVHeader {
+    char chunkID[4];
     uint32_t chunkSize;
-    uint32_t format;
-    uint32_t subChunk1ID;
-    uint32_t subChunk1Size;
+    char format[4];
+    char subchunk1ID[4];
+    uint32_t subchunk1Size;
     uint16_t audioFormat;
     uint16_t numChannels;
     uint32_t sampleRate;
     uint32_t byteRate;
     uint16_t blockAlign;
     uint16_t bitsPerSample;
-    uint32_t data;
-    uint32_t dataSize;
+    char subchunk2ID[4];
+    uint32_t subchunk2Size;
 };
 
 class WAV : public I_Audio {
@@ -37,7 +37,7 @@ public:
     
     std::vector<AudioSample> loadAudio() const override {
         const size_t bytesPerSample = m_Header.bitsPerSample / 8;
-        const size_t numSamples = m_Header.dataSize / (bytesPerSample * m_Header.numChannels);
+        const size_t numSamples = m_Header.subchunk2Size / (bytesPerSample * m_Header.numChannels);
 
         bool isStereo = (m_Header.numChannels == static_cast<uint16_t>(AudioType::STEREO));
 
@@ -102,27 +102,20 @@ public:
 
 protected:
     void loadFromFile(std::filesystem::path filepath) override {
-        int fd = open(filepath.c_str(), O_RDONLY);
-        if (fd == -1) {
-            throw std::runtime_error("Could not open wav file");
+        std::ifstream file(filepath, std::ios::binary);
+        if (!file.is_open()) {
+            throw std::runtime_error("Could not open WAV file");
         }
-        struct stat sb;
-        if (fstat(fd, &sb) == -1) {
-            close(fd);
-            throw std::runtime_error("Could not get file size");
+        file.read(reinterpret_cast<char*>(&m_Header), sizeof(WAVHeader));
+        if (std::strncmp(m_Header.chunkID, "RIFF", 4) != 0 || std::strncmp(m_Header.format, "WAVE", 4) != 0) {
+            throw std::runtime_error("Invalid WAV file");
         }
-        char* addr = static_cast<char*>(
-            mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0)
-        );
-        if (addr == MAP_FAILED) {
-            close(fd);
-            throw std::runtime_error("Memory mapping failed");
+        m_AudioData.resize(m_Header.subchunk2Size);
+        file.read(m_AudioData.data(), m_Header.subchunk2Size);
+        if (!file) {
+            throw std::runtime_error("Error reading WAV data");
         }
-        std::memcpy(&m_Header, addr, sizeof(WAVHeader));
-        m_AudioData = std::vector<char>(addr+sizeof(WAVHeader), addr + sb.st_size);
-        
-        munmap(addr, sb.st_size);
-        close(fd);
+        file.close();
     }
 
 private:
