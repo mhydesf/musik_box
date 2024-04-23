@@ -40,6 +40,17 @@ public:
         return result;
     }
 
+    void reduceFFT(std::vector<std::complex<double>>& fft,
+                   uint32_t sampleRate,
+                   float maxFrequency) {
+        size_t maxBin = getMaxBin(sampleRate, fft.size(), maxFrequency);
+        fft.erase(fft.begin() + maxBin + 1, fft.end());
+    }
+    
+    float getFreqencyStep(uint32_t sampleRate, size_t fftSize) {
+        return static_cast<float>(sampleRate) / fftSize;
+    }
+
 private:
     void preparePlan(size_t newSize) {
         if (newSize != N) {
@@ -66,6 +77,14 @@ private:
             input[i] *= 0.5 * (1 - cos(2 * M_PI * i / (input.size() - 1)));
         }
     }
+
+    size_t getMaxBin(uint32_t sampleRate,
+                     size_t fftSize,
+                     float maxFrequency) {
+        float freq_step = getFreqencyStep(sampleRate ,fftSize);
+        return static_cast<size_t>(maxFrequency / freq_step);
+    }
+
 private:
     double* in;
     fftw_complex* out;
