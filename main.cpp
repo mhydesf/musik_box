@@ -7,24 +7,31 @@
 using namespace MusikBox;
 
 int main(int argc, const char** argv) {
-    auto path = "/home/mikhail-hyde/Documents/sources/musik_box/sample/sample_audio.wav";
+    // load + parse wav file
+    auto path = "/home/mikhail-hyde/Documents/sources/musik_box/sample/M4_major.wav";
     Audio::WAV wav{path};
     auto data = wav.loadAudio();
+    auto mono = Audio::WAV::convertStereoToMono_AVG(data);
 
-    auto mono = Audio::I_Audio::convertStereoToMono_AVG(data);
+    // convert to std::vector<double>
+    std::vector<double> mono_d = Audio::WAV::convertAudioData<int16_t, double>(mono);
+
+    // run fft + reduce size
     auto fft = DSP::FFTManager();
+    std::vector<std::complex<double>> result = fft.computeFFT(mono_d);
+    fft.reduceFFT(result, wav.getSampleRate(), 20'000);
 
-    std::vector<double> mono_d;
-    mono_d.resize(mono.size());
-
-    for (size_t i = 0; i < mono.size(); i++) {
-        mono_d[i] = static_cast<double>(mono[i]);
+    // prepare vector for plotting
+    std::vector<std::pair<float, std::complex<double>>> pl(result.size());
+    for (size_t i = 0; i < result.size(); i++) {
+        float x = i * fft.getFreqencyStep(wav.getSampleRate(), result.size());
+        std::complex<double> y = result[i];
+        pl[i] = std::pair(x, y);
     }
 
-    std::vector<std::complex<double>> result = fft.computeFFT(mono_d);
-
+    // plot
     Tools::Plotter plot;
-    plot.Plot1D(result);
+    plot.Plot1D(pl);
 
     return 0;
 }
