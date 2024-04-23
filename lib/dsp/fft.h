@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <cstdint>
 #include <vector>
 #include <complex>
 #include <fftw3.h>
@@ -22,15 +24,17 @@ public:
         size_t inputSize = input.size();
         preparePlan(inputSize);
 
-        for (size_t i = 0; i < inputSize; ++i) {
-            in[i] = input[i];
-        }
+        std::vector<double> windowedInput = input;
+        hanningWindow(windowedInput);
+
+        std::copy(input.begin(), input.end(), in);
 
         fftw_execute(plan);
 
+        double scale = 1.0 / static_cast<double>(N);
         std::vector<std::complex<double>> result(inputSize / 2 + 1);
         for (size_t i = 0; i < inputSize / 2 + 1; ++i) {
-            result[i] = std::complex<double>(out[i][0], out[i][1]);
+            result[i] = std::complex<double>(out[i][0], out[i][1]) * scale;
         }
 
         return result;
@@ -57,6 +61,11 @@ private:
         N = 0;
     }
 
+    void hanningWindow(std::vector<double>& input) {
+        for (size_t i = 0; i < input.size(); ++i) {
+            input[i] *= 0.5 * (1 - cos(2 * M_PI * i / (input.size() - 1)));
+        }
+    }
 private:
     double* in;
     fftw_complex* out;
