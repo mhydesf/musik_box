@@ -3,8 +3,6 @@
 #include <wav.h>
 #include <gnu_plot.h>
 
-#define PI 3.14159265358979323846
-
 std::vector<float> generateSinWave(float amplitude,
                                    float frequency,
                                    uint32_t sample_rate,
@@ -12,7 +10,7 @@ std::vector<float> generateSinWave(float amplitude,
     std::vector<float> ret;
     int totalSamples = static_cast<int>(sample_rate * duration);
     for (int n = 0; n < totalSamples; ++n) {
-        double value = amplitude * sin(n * 2 * PI * frequency / sample_rate);
+        double value = amplitude * sin(n * 2 * M_PI * frequency / sample_rate);
         ret.push_back(value);
     }
 
