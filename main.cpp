@@ -23,8 +23,6 @@ int main(int argc, const char** argv) {
 
     std::vector<std::complex<double>> result = fft.computeFFT(mono_d);
 
-    volatile bool stop = true;
-
     Tools::Plotter plot;
     plot.Plot1D(result);
 

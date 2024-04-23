@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 #include <format>
 #include <algorithm>
-#include "gnuplot-iostream.h"
+#include <gnuplot-iostream.h>
 
 namespace MusikBox::Tools {
 
@@ -26,7 +27,7 @@ public:
     void Plot1D(const std::vector<std::complex<double>>& data) {
         std::vector<int16_t> data_i;
         data_i.resize(data.size());
-        for (size_t i = 0; i < data.size(); i ++) {
+        for (size_t i = 0; i < data.size(); i++) {
             data_i[i] = static_cast<int16_t>(data[i].real());
         }
         Plot1D<int16_t>(data_i);
