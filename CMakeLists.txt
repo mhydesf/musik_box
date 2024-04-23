@@ -20,7 +20,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     musik_box_lib
-    fmt::fmt
     fftw3
     ${Boost_LIBRARIES}
 )

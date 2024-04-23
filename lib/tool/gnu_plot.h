@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <fmt/format.h>
+#include <format>
 #include <algorithm>
 #include "gnuplot-iostream.h"
 
@@ -13,7 +13,7 @@ public:
 
     template <typename T>
     void Plot1D(const std::vector<T>& data) {
-        gp << fmt::format(
+        gp << std::format(
             "set xrange [0:{}]\nset yrange [{}:{}]\n",
             data.size(),
             *std::max_element(data.begin(), data.end()),
