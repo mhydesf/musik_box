@@ -45,6 +45,15 @@ public:
         return output;
     }
 
+    template <typename FROM, typename TO>
+    static std::vector<TO> convertAudioData(const std::vector<FROM>& input) {
+        std::vector<TO> tmp(input.size());
+        for (size_t i = 0; i < input.size(); i++) {
+            tmp[i] = static_cast<TO>(input[i]);
+        }
+        return tmp;
+    }
+
 protected:
     virtual void loadFromFile(std::filesystem::path filepath) = 0;
 
