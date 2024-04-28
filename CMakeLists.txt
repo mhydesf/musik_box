@@ -8,9 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(MB_LIB ${PROJECT_NAME}_lib)
 
-add_subdirectory(lib/)
-# add_subdirectory(test/)
 add_subdirectory(vendor/)
+add_subdirectory(lib/)
+add_subdirectory(test/)
 
 ExternalProject_Get_Property(gnuplot-iostream INSTALL_DIR)
 include_directories(${INSTALL_DIR}/src/gnuplot-iostream)
