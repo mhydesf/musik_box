@@ -4,3 +4,6 @@ target_include_directories(${MB_LIB} INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/dsp
     ${CMAKE_CURRENT_SOURCE_DIR}/tool
 )
+target_link_libraries(${MB_LIB} INTERFACE
+    fmt
+)

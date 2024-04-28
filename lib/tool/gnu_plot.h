@@ -1,6 +1,6 @@
 #pragma once
 
-#include <format>
+#include <fmt/format.h>
 #include <vector>
 #include <cstdint>
 #include <algorithm>
@@ -25,7 +25,7 @@ public:
             });
 
         if (maxIt != data.end() && minIt != data.end()) {
-            std::string command = std::format("set xrange [0:{}]\nset yrange [{:.2f}:{:.2f}]\n",
+            std::string command = fmt::format("set xrange [0:{}]\nset yrange [{:.2f}:{:.2f}]\n",
                                               data.size(),
                                               static_cast<float>(minIt->second),
                                               static_cast<float>(maxIt->second));

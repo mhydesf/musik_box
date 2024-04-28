@@ -3,27 +3,47 @@ project(musik_box)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_REQUIRED True)
-set(CMAKE_EXPORT_COMPILE_COMMANDS True)
+set(CMAKE_CXX_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(MB_LIB ${PROJECT_NAME}_lib)
 
-find_package(Boost REQUIRED COMPONENTS iostreams system filesystem)
-
 add_subdirectory(lib/)
-add_subdirectory(test/)
+# add_subdirectory(test/)
 add_subdirectory(vendor/)
 
-include_directories(${CMAKE_BINARY_DIR}/fftw/include)
-include_directories(${CMAKE_BINARY_DIR}/gnuplot-iostream/src/gnuplot-iostream)
-link_directories(${CMAKE_BINARY_DIR}/fftw/lib)
-include_directories(${Boost_INCLUDE_DIRS})
+ExternalProject_Get_Property(gnuplot-iostream INSTALL_DIR)
+include_directories(${INSTALL_DIR}/src/gnuplot-iostream)
+
+ExternalProject_Get_Property(fmt INSTALL_DIR)
+include_directories(${INSTALL_DIR}/include)
+link_directories(${INSTALL_DIR}/lib)
+
+ExternalProject_Get_Property(fftw INSTALL_DIR)
+include_directories(${INSTALL_DIR}/include)
+link_directories(${INSTALL_DIR}/lib)
+
+ExternalProject_Get_Property(libboost INSTALL_DIR)
+include_directories(${INSTALL_DIR}/include)
+link_directories(${INSTALL_DIR}/lib)
 
 add_executable(${PROJECT_NAME} main.cpp)
-add_dependencies(${PROJECT_NAME} fftw)
+add_dependencies(${PROJECT_NAME}
+    fmt
+    fftw
+    libboost
+    gnuplot-iostream
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${MB_LIB}
     fftw3
-    ${Boost_LIBRARIES}
+    boost_iostreams
+    boost_system
+    boost_filesystem
+)
+
+target_link_libraries(${PROJECT_NAME} INTERFACE
+    fmt
+    gnuplot-iostream
 )

@@ -8,7 +8,7 @@ using namespace MusikBox;
 
 int main(int argc, const char** argv) {
     // load + parse wav file
-    auto path = "/home/mikhail-hyde/Documents/sources/musik_box/sample/M4_major.wav";
+    auto path = std::filesystem::absolute("sample/M4_major.wav");
     Audio::WAV wav{path};
     auto data = wav.loadAudio();
     auto mono = Audio::WAV::convertStereoToMono_AVG(data);
