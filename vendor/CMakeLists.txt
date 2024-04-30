@@ -2,7 +2,7 @@ include(ExternalProject)
 
 ExternalProject_Add(
     libboost
-    URL https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
+    URL https://boostorg.jfrog.io/artifactory/main/release/1.85.0/source/boost_1_85_0.tar.bz2
     PREFIX ${CMAKE_BINARY_DIR}/libboost
     CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/libboost
     BUILD_COMMAND ./b2 --prefix=${CMAKE_BINARY_DIR}/libboost --with-iostreams --with-system --with-filesystem link=shared
