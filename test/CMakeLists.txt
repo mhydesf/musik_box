@@ -32,6 +32,7 @@ foreach(testSrc ${TEST_SOURCES})
         boost_iostreams
         boost_system
         boost_filesystem
+        pthread
     )
     target_link_libraries(${testName} INTERFACE
         fmt

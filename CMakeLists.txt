@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.22)
 project(musik_box)
 
 set(CMAKE_BUILD_TYPE Debug)
@@ -41,6 +41,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     boost_iostreams
     boost_system
     boost_filesystem
+    pthread
 )
 
 target_link_libraries(${PROJECT_NAME} INTERFACE
