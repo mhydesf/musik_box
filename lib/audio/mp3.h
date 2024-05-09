@@ -1,7 +1,9 @@
 #pragma once
 
 #include <filesystem>
-#include <audio/audio_base.h>
+#include <audio_base.h>
+
+namespace MusikBox::Audio {
 
 struct __attribute__((packed)) MP3Header {
 };
@@ -22,3 +24,5 @@ protected:
 private:
     MP3Header m_Header;
 };
+
+} //namespace MusikBox::Audio
