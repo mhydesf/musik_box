@@ -8,7 +8,7 @@ using namespace MusikBox;
 
 int main(int argc, const char** argv) {
     // load + parse wav file
-    auto path = std::filesystem::absolute("sample/M4_major.wav");
+    auto path = std::filesystem::absolute("../sample/sample_audio.wav");
     Audio::WAV wav{path};
     auto data = wav.loadAudio();
     auto mono = Audio::WAV::convertStereoToMono_AVG(data);
@@ -19,18 +19,13 @@ int main(int argc, const char** argv) {
     // run fft + reduce size
     auto fft = DSP::FFTManager();
     std::vector<std::complex<double>> result = fft.computeFFT(mono_d);
-    fft.reduceFFT(result, wav.getSampleRate(), 20'000);
 
     // prepare vector for plotting
-    std::vector<std::pair<float, std::complex<double>>> pl(result.size());
-    for (size_t i = 0; i < result.size(); i++) {
-        float x = i * fft.getFreqencyStep(wav.getSampleRate(), result.size());
-        std::complex<double> y = result[i];
-        pl[i] = std::pair(x, y);
-    }
+    const auto pl = fft.convertToPairVector(result, wav.getSampleRate());
 
     // plot
     Tools::Plotter plot;
+    plot.SetBounds(0, 10'000, std::nullopt, std::nullopt);
     plot.Plot1D(pl);
 
     return 0;
