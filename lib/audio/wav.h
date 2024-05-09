@@ -36,7 +36,7 @@ public:
         setAudioFormat(m_Header.bitsPerSample);
     }
 
-    ~WAV(){}
+    ~WAV() = default;
     
     std::vector<AudioSample> loadAudio() const override {
         const size_t bytesPerSample = m_Header.bitsPerSample / 8;

@@ -9,7 +9,7 @@ struct __attribute__((packed)) MP3Header {
 class MP3 : public I_Audio {
 public:
     MP3(std::filesystem::path filepath) {}
-    ~MP3(){}
+    ~MP3() = default;
 
     std::vector<AudioSample> loadAudio() const override {
         std::vector<AudioSample> samples;
