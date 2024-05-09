@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <iostream>
 #include <vector>
 #include <complex>
 #include <fftw3.h>
@@ -26,29 +27,34 @@ public:
 
         std::vector<double> windowedInput = input;
         hanningWindow(windowedInput);
-
-        std::copy(input.begin(), input.end(), in);
+        std::copy(windowedInput.begin(), windowedInput.end(), in);
 
         fftw_execute(plan);
 
-        double scale = 1.0 / static_cast<double>(N);
         std::vector<std::complex<double>> result(inputSize / 2 + 1);
         for (size_t i = 0; i < inputSize / 2 + 1; ++i) {
-            result[i] = std::complex<double>(out[i][0], out[i][1]) * scale;
+            result[i] = std::complex<double>(out[i][0], out[i][1]);
         }
 
         return result;
     }
 
-    void reduceFFT(std::vector<std::complex<double>>& fft,
-                   uint32_t sampleRate,
-                   float maxFrequency) {
-        size_t maxBin = getMaxBin(sampleRate, fft.size(), maxFrequency);
-        fft.erase(fft.begin() + maxBin + 1, fft.end());
-    }
-    
-    float getFreqencyStep(uint32_t sampleRate, size_t fftSize) {
-        return static_cast<float>(sampleRate) / fftSize;
+    std::vector<std::pair<float, std::complex<double>>> convertToPairVector(std::vector<std::complex<double>> data,
+                                                                            const uint32_t sample_rate,
+                                                                            std::optional<float> cutoff_freq = std::nullopt) {
+        std::vector<std::pair<float, std::complex<double>>> result(data.size());
+        const auto resolution = static_cast<float>(sample_rate) / m_NPad;
+        size_t last_valid_idx = 0;
+        
+        size_t cutoff_index = cutoff_freq.has_value() ? static_cast<size_t>(cutoff_freq.value() / resolution) : data.size();
+        for (size_t i = 0; i < data.size() && i <= cutoff_index; i++) {
+            float x = i * resolution;
+            std::complex<double> y = data[i];
+            result[last_valid_idx] = std::pair(x, y);
+            last_valid_idx++;
+        }
+        result.resize(last_valid_idx);
+        return result;
     }
 
 private:
@@ -56,9 +62,10 @@ private:
         if (newSize != N) {
             cleanup();
             N = newSize;
-            in = fftw_alloc_real(N);
-            out = fftw_alloc_complex(N/2+1);
-            plan = fftw_plan_dft_r2c_1d(N, in, out, FFTW_ESTIMATE);
+            while (m_NPad < N) { m_NPad *= 2; }
+            in = fftw_alloc_real(m_NPad);
+            out = fftw_alloc_complex(m_NPad/2+1);
+            plan = fftw_plan_dft_r2c_1d(m_NPad, in, out, FFTW_ESTIMATE);
         }
     }
 
@@ -78,18 +85,13 @@ private:
         }
     }
 
-    size_t getMaxBin(uint32_t sampleRate,
-                     size_t fftSize,
-                     float maxFrequency) {
-        float freq_step = getFreqencyStep(sampleRate ,fftSize);
-        return static_cast<size_t>(maxFrequency / freq_step);
-    }
-
 private:
     double* in;
     fftw_complex* out;
     fftw_plan plan;
     size_t N;
+
+    size_t m_NPad = 1 << 16;
 };
 
 } // namespace MusikBox::DSP
