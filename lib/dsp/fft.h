@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <iostream>
 #include <vector>
 #include <complex>
 #include <fftw3.h>
